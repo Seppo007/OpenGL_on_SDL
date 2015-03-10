@@ -4,6 +4,7 @@
 #include <GL/gl.h>
 #include <glm/glm.hpp>
 #include <string>
+#include "loadShaders.h"
 
 
 // PROTOTYPING
@@ -11,11 +12,11 @@ bool init();
 void logSDLError(std::ostream& os, std::string);
 SDL_Window* setupWindow(SDL_Window *win, SDL_GLContext &ctx);
 void initGL(GLuint &vertexbuffer);
-void draw(GLuint &vertexbuffer);
+void draw(const GLuint &vertexbuffer);
 void clearAll(SDL_Window *win, SDL_GLContext &ctx);
 
 int main(int, char**){
-	
+
     SDL_Window *win = nullptr;
     SDL_GLContext ctx;
 
@@ -28,11 +29,14 @@ int main(int, char**){
 
     initGL(vbo_Vertexbuffer);
 
-    // MAIN LOOP
+    // Defining a Shader Program to be applied later
+    GLuint programID = loadShaders("..\\..\\OpenGL_on_SDL\\firstSteps\\shader.vert", "..\\..\\OpenGL_on_SDL\\firstSteps\\shader.frag");
 
+    // MAIN LOOP
     do {
 
         SDL_PollEvent(&event);
+        glUseProgram(programID);
         draw(vbo_Vertexbuffer);
         SDL_GL_SwapWindow(win);
 
@@ -53,6 +57,7 @@ bool init(){
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
@@ -82,7 +87,7 @@ SDL_Window* setupWindow(SDL_Window *win, SDL_GLContext &ctx){
         SDL_GL_MakeCurrent(win, ctx);
 
         // GLEW INITIALIZATION
-        if(glewInit() < 0){
+        if(glewInit() != 0){
             logSDLError(std::cerr, "Initializing GLEW");
             SDL_DestroyWindow(win);
             win = nullptr;
@@ -120,10 +125,12 @@ void initGL(GLuint &vertexbuffer){
     // Give our vertices to OpenGL
     glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 
+    glClearColor(0.35, 0, 0, 1);
+
 }
 
 
-void draw(GLuint &vertexbuffer){
+void draw(const GLuint &vertexbuffer){
 
     // Specify that our coordinate data is going into attribute index 0, and contains 3 floats per vertex
     glVertexAttribPointer(
@@ -134,6 +141,9 @@ void draw(GLuint &vertexbuffer){
        0,                  // stride
        0                   // array buffer offset
     );
+
+    // Clear Background
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // 1rst attribute buffer : vertices
     glEnableVertexAttribArray(0);
