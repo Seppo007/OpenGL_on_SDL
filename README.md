@@ -1,2 +1,2 @@
 # OpenGL_on_SDL
-Learning OpenGL with upon a SDL basement
+Learning OpenGL upon a SDL basement
