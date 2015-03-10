@@ -19,11 +19,10 @@ int main(int, char**){
 
     init();
 
-    win = setupWindow(win, ctx);
-
-    drawSomething(win);
-
-    SDL_Delay(1500);
+    if(win = setupWindow(win, ctx)){
+        drawSomething(win);
+        SDL_Delay(1500);
+    }
 
     return 0;
 	
@@ -58,10 +57,20 @@ SDL_Window* setupWindow(SDL_Window *win, SDL_GLContext &ctx){
 
     win = SDL_CreateWindow("Testing OpenGL on SDL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 
-    ctx = SDL_GL_CreateContext(win);
-    SDL_GL_MakeCurrent(win, ctx);
+    if(!win){
+        logSDLError(std::cerr, "Creating Window");
+        SDL_Quit();
+    } else {
+        ctx = SDL_GL_CreateContext(win);
+        SDL_GL_MakeCurrent(win, ctx);
 
-    glewInit();
+        if(glewInit() < 0){
+            logSDLError(std::cerr, "Initializing GLEW");
+            SDL_DestroyWindow(win);
+            win = nullptr;
+            SDL_Quit();
+        }
+    }
 
     return win;
 
@@ -70,12 +79,12 @@ SDL_Window* setupWindow(SDL_Window *win, SDL_GLContext &ctx){
 
 void drawSomething(SDL_Window *win){
 
-
     GLuint VertexArrayID;
 
     glGenVertexArrays(1, &VertexArrayID);
     glBindVertexArray(VertexArrayID);
 
+    // Coordinates for the vertices describing a triangle
     static const GLfloat g_vertex_buffer_data[] = {
            -1.0f, -1.0f, 0.0f,
            1.0f, -1.0f, 0.0f,
