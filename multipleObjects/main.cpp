@@ -12,7 +12,7 @@
 bool init();
 void logSDLError(std::ostream& os, std::string);
 SDL_Window* setupWindow(SDL_Window *win, SDL_GLContext &ctx);
-void initGL(GLuint &vertexbuffer, GLuint &vertexbuffer2, GLuint &vao1, GLuint &vao2);
+void initGL(GLuint &vertexbuffer, GLuint &vao1, GLuint &vao2);
 void updateMVP(glm::mat4 &MVP, glm::mat4 &MVP2, GLuint &programID);
 void clearAll(SDL_Window *win, SDL_GLContext &ctx);
 void polling(SDL_Event &event);
@@ -30,7 +30,7 @@ int main(int, char**){
     SDL_GLContext ctx;
 
     SDL_Event event;
-    GLuint vbo_Vertexbuffer, vbo_Vertexbuffer2;
+    GLuint vbo_Vertexbuffer;
     GLuint vao1, vao2;
 
     init();
@@ -42,7 +42,7 @@ int main(int, char**){
     // Defining a Shader Program to be applied later
     GLuint programID = loadShaders("..\\..\\OpenGL_on_SDL\\multipleObjects\\shader.vert", "..\\..\\OpenGL_on_SDL\\multipleObjects\\shader.frag");
 
-    initGL(vbo_Vertexbuffer, vbo_Vertexbuffer2, vao1, vao2);
+    initGL(vbo_Vertexbuffer, vao1, vao2);
 
     // MAIN LOOP
     do {
@@ -119,7 +119,7 @@ SDL_Window* setupWindow(SDL_Window *win, SDL_GLContext &ctx){
 }
 
 
-void initGL(GLuint &vertexbuffer, GLuint &vertexbuffer2, GLuint &vao1, GLuint &vao2){
+void initGL(GLuint &vertexbuffer, GLuint &vao1, GLuint &vao2){
 
     // Allocate and assign 1 Vertex Array Object to our handle
     glGenVertexArrays(1, &vao1);
@@ -158,16 +158,19 @@ void initGL(GLuint &vertexbuffer, GLuint &vertexbuffer2, GLuint &vao1, GLuint &v
 
     // An array of 3 vectors which represents 3 vertices
     static const GLfloat g_vertex_buffer_data2[] = {
-       -1.0f, 1.0f, 0.0f,
-       1.0f, 1.0f, 0.0f,
-       0.0f, -1.0f, 0.0f,
+       1.f, -1.f, 0.f,
+       -1.f, -1.f, 0.f,
+       -1.f, 1.f, 0.f,
+       -1.f, 1.f, 0.f,
+       1.f, 1.f, 0.f,
+       1.f, -1.f, 0.f
     };
 
     // Generate 1 Vertex Buffer Object, put the resulting identifier in vertexbuffer
-    glGenBuffers(1, &vertexbuffer2);
+    glGenBuffers(1, &vertexbuffer);
 
     // Bind our VBO as being the active buffer and storing vertex attributes (coordinates)
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer2);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
     // Give our vertices to OpenGL
     glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data2), g_vertex_buffer_data2, GL_STATIC_DRAW);
@@ -208,7 +211,7 @@ void draw(GLuint &vao1, GLuint &vao2){
 
     glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP2[0][0]);
 
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLES, 0, 2*3);
     glDisableVertexAttribArray(0);
 
 }
