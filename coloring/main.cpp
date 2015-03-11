@@ -12,7 +12,7 @@
 bool init();
 void logSDLError(std::ostream& os, std::string);
 SDL_Window* setupWindow(SDL_Window *win, SDL_GLContext &ctx);
-void initGL(GLuint &vertexbuffer, GLuint &vao1, GLuint &vao2);
+void initGL(GLuint &vao1, GLuint &vao2);
 void updateMVP(glm::mat4 &MVP, glm::mat4 &MVP2, GLuint &programID);
 void clearAll(SDL_Window *win, SDL_GLContext &ctx);
 void polling(SDL_Event &event);
@@ -26,11 +26,12 @@ static float xvar = 0.0f, yvar = 0.0f, zvar = 10.0f;        // View is centered 
 
 int main(int, char**){
 
+    srand(time(NULL));
+
     SDL_Window *win = nullptr;
     SDL_GLContext ctx;
 
     SDL_Event event;
-    GLuint vbo_Vertexbuffer;
     GLuint vao1, vao2;
 
     init();
@@ -40,9 +41,9 @@ int main(int, char**){
     glm::mat4 myMat;
 
     // Defining a Shader Program to be applied later
-    GLuint programID = loadShaders("..\\..\\OpenGL_on_SDL\\texturing\\shader.vert", "..\\..\\OpenGL_on_SDL\\texturing\\shader.frag");
+    GLuint programID = loadShaders("..\\..\\OpenGL_on_SDL\\coloring\\shader.vert", "..\\..\\OpenGL_on_SDL\\coloring\\shader.frag");
 
-    initGL(vbo_Vertexbuffer, vao1, vao2);
+    initGL(vao1, vao2);
 
     // MAIN LOOP
     do {
@@ -119,7 +120,7 @@ SDL_Window* setupWindow(SDL_Window *win, SDL_GLContext &ctx){
 }
 
 
-void initGL(GLuint &vertexbuffer, GLuint &vao1, GLuint &vao2){
+void initGL(GLuint &vao1, GLuint &vao2){
 
     // Allocate and assign 1 Vertex Array Object to our handle
     glGenVertexArrays(1, &vao1);
@@ -127,12 +128,16 @@ void initGL(GLuint &vertexbuffer, GLuint &vao1, GLuint &vao2){
 
     // An array of 3 vectors which represents 3 vertices
     static const GLfloat g_vertex_buffer_data[] = {
-       1.0f, -1.0f, 0.0f,
-       -1.0f, -1.0f, 0.0f,
-       0.0f, 1.0f, 0.0f,
+       -1.f, 1.f, 0.f,
+       -1.f, -1.f, 0.f,
+       1.f, -1.f, 0.f,
+       1.f, -1.f, 0.f,
+       1.f, 1.f, 0.f,
+       -1.f, 1.f, 0.f,
     };
 
     // Generate 1 Vertex Buffer Object, put the resulting identifier in vertexbuffer
+    GLuint vertexbuffer;
     glGenBuffers(1, &vertexbuffer);
 
     // Bind our VBO as being the active buffer and storing vertex attributes (coordinates)
@@ -202,6 +207,13 @@ void initGL(GLuint &vertexbuffer, GLuint &vao1, GLuint &vao2){
        -1.f, 1.f, 1.f,
     };
 
+    static GLfloat g_color_buffer_data[12*3*3];
+    for (int v = 0; v < 12*3 ; v++){
+        g_color_buffer_data[3*v+0] = ((double)rand()) / 32767;
+        g_color_buffer_data[3*v+1] = ((double)rand()) / 32767;
+        g_color_buffer_data[3*v+2] = ((double)rand()) / 32767;
+    }
+
     // Generate 1 Vertex Buffer Object, put the resulting identifier in vertexbuffer
     glGenBuffers(1, &vertexbuffer);
 
@@ -214,12 +226,34 @@ void initGL(GLuint &vertexbuffer, GLuint &vao1, GLuint &vao2){
     // Specify that our coordinate data is going into attribute index 0, and contains 3 floats per vertex
     glVertexAttribPointer(
        0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-       3,                  // size
+       3,                  // size per Vertex
        GL_FLOAT,           // type
        GL_FALSE,           // normalized?
        0,                  // stride
        0                   // array buffer offset
     );
+
+    GLuint colorbuffer;
+    glGenBuffers(1, &colorbuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data), g_color_buffer_data, GL_STATIC_DRAW);
+
+    // 2nd attribute buffer : colors
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
+    glVertexAttribPointer(
+        1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
+        3,                                // size per Vertex
+        GL_FLOAT,                         // type
+        GL_FALSE,                         // normalized?
+        0,                                // stride
+        (void*)0                          // array buffer offset
+    );
+
+    // Enable depth test
+    glEnable(GL_DEPTH_TEST);
+    // Accept fragment if it closer to the camera than the former one
+    glDepthFunc(GL_LESS);
 
     // Set Clear Color
     glClearColor(0.35, 0, 0, 1);
@@ -237,7 +271,7 @@ void draw(GLuint &vao1, GLuint &vao2){
     glEnableVertexAttribArray(0);
 
     glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLES, 0, 2*3);
 
     glDisableVertexAttribArray(0);
 
