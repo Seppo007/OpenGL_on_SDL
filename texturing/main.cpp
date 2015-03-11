@@ -158,48 +158,48 @@ void initGL(GLuint &vertexbuffer, GLuint &vao1, GLuint &vao2){
 
     // An array of 3 vectors which represents 3 vertices
     static const GLfloat cube_vertex_buffer_data[] = {
-       // Front Side
-        1.f, -1.f, -1.f,
-       -1.f, -1.f, -1.f,
-       -1.f, 1.f, -1.f,
-       -1.f, 1.f, -1.f,
-       1.f, 1.f, -1.f,
-       1.f, -1.f, -1.f,
-       // Top Side
-       -1.f, 1.f, -1.f,
-       -1.f, 1.f, 1.f,
-       1.f, 1.f, -1.f,
-       1.f, 1.f, -1.f,
-       -1.f, 1.f, 1.f,
-       1.f, 1.f, -1.f,
-       // Right Side
-       1.f, 1.f, 1.f,
-       1.f, -1.f, 1.f,
-       1.f, -1.f, -1.f,
-       1.f, -1.f, -1.f,
-       1.f, 1.f, -1.f,
-       1.f, 1.f, 1.f,
-       // Down Side
-       -1.f, -1.f, -1.f,
-       -1.f, -1.f, 1.f,
-       1.f, -1.f, -1.f,
-       1.f, -1.f, -1.f,
-       -1.f, -1.f, 1.f,
-       1.f, -1.f, 1.f,
-       // Left Side
-       -1.f, -1.f, -1.f,
-       -1.f, -1.f, 1.f,
-       -1.f, 1.f, 1.f,
-       -1.f, 1.f, 1.f,
-        -1.f, 1.f, -1.f,
-       -1.f, -1.f, -1.f,
        // Back Side
        -1.f, -1.f, 1.f,
        -1.f, 1.f, 1.f,
        1.f, 1.f, 1.f,
        1.f, 1.f, 1.f,
+       -1.f, -1.f, 1.f,
        1.f, -1.f, 1.f,
-       1.f, -1.f, -1.f
+       // Right Side
+       1.f, -1.f, -1.f,
+       1.f, 1.f, -1.f,
+       1.f, -1.f, 1.f,
+       1.f, -1.f, 1.f,
+       1.f, 1.f, -1.f,
+       1.f, 1.f, 1.f,
+       // Front Side
+       -1.f, -1.f, -1.f,
+       -1.f, 1.f, -1.f,
+       1.f, 1.f, -1.f,
+       1.f, 1.f, -1.f,
+       -1.f, -1.f, -1.f,
+       1.f, -1.f, -1.f,
+       // Left Side
+       -1.f, -1.f, -1.f,
+       -1.f, 1.f, -1.f,
+       -1.f, 1.f, 1.f,
+       -1.f, 1.f, 1.f,
+       -1.f, -1.f, 1.f,
+       -1.f, -1.f, -1.f,
+       // Bottom
+       -1.f, -1.f, -1.f,
+       -1.f, -1.f, 1.f,
+       1.f, -1.f, -1.f,
+       1.f, -1.f, -1.f,
+       1.f, -1.f, 1.f,
+       -1.f, -1.f, 1.f,
+       // Top
+       -1.f, 1.f, -1.f,
+       -1.f, 1.f, 1.f,
+       1.f, 1.f, -1.f,
+       1.f, 1.f, -1.f,
+       1.f, 1.f, 1.f,
+       -1.f, 1.f, 1.f,
     };
 
     // Generate 1 Vertex Buffer Object, put the resulting identifier in vertexbuffer
@@ -269,7 +269,7 @@ void updateMVP(glm::mat4 &MVP, glm::mat4 &MVP2, GLuint &programID){
     glm::mat4 Xrotate = glm::rotate(glm::mat4(1.0f), XrotationVar, glm::vec3(1.0f, 0.0f, 0.0f));
     glm::mat4 Yrotate = glm::rotate(glm::mat4(1.0f), YrotationVar, glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 Model = glm::mat4(1.0f) * Xrotate * Yrotate;
-    glm::mat4 Model2 = glm::translate(glm::mat4(1.0f), glm::vec3(6.0f, 0.0f, 0.0f)) * glm::rotate(glm::mat4(1.0f), 55.0f, glm::vec3(0.0f, 1.0f, 0.0f)) * Xrotate * Yrotate;
+    glm::mat4 Model2 = glm::translate(glm::mat4(1.0f), glm::vec3(6.0f, 0.0f, 0.0f)) * glm::rotate(glm::mat4(1.0f), 0.f, glm::vec3(0.0f, 1.0f, 0.0f)) * Xrotate * Yrotate;
     MVP = Projection * View * Model;
     MVP2 = Projection * View * Model2;
 
