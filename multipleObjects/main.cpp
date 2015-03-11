@@ -12,15 +12,15 @@
 bool init();
 void logSDLError(std::ostream& os, std::string);
 SDL_Window* setupWindow(SDL_Window *win, SDL_GLContext &ctx);
-void initGL(GLuint &vertexbuffer);
-void updateMVP(glm::mat4 &MVP, GLuint &programID);
+void initGL(GLuint &vertexbuffer, GLuint &vertexbuffer2, GLuint &vao1, GLuint &vao2);
+void updateMVP(glm::mat4 &MVP, glm::mat4 &MVP2, GLuint &programID);
 void clearAll(SDL_Window *win, SDL_GLContext &ctx);
 void polling(SDL_Event &event);
-void draw();
+void draw(GLuint &vao1, GLuint &vao2);
 void matrixTest();
 
 static GLuint MatrixID;
-static glm::mat4 MVP;
+static glm::mat4 MVP, MVP2;
 static float XrotationVar = 0, YrotationVar = 0;
 static float xvar = 0.0f, yvar = 0.0f, zvar = 10.0f;        // View is centered on Origin with z-distance of 10
 
@@ -30,7 +30,8 @@ int main(int, char**){
     SDL_GLContext ctx;
 
     SDL_Event event;
-    GLuint vbo_Vertexbuffer;
+    GLuint vbo_Vertexbuffer, vbo_Vertexbuffer2;
+    GLuint vao1, vao2;
 
     init();
 
@@ -39,9 +40,9 @@ int main(int, char**){
     glm::mat4 myMat;
 
     // Defining a Shader Program to be applied later
-    GLuint programID = loadShaders("..\\..\\OpenGL_on_SDL\\transformations\\shader.vert", "..\\..\\OpenGL_on_SDL\\transformations\\shader.frag");
+    GLuint programID = loadShaders("..\\..\\OpenGL_on_SDL\\multipleObjects\\shader.vert", "..\\..\\OpenGL_on_SDL\\multipleObjects\\shader.frag");
 
-    initGL(vbo_Vertexbuffer);
+    initGL(vbo_Vertexbuffer, vbo_Vertexbuffer2, vao1, vao2);
 
     // MAIN LOOP
     do {
@@ -50,8 +51,8 @@ int main(int, char**){
 
         // Use Shader Program
         glUseProgram(programID);
-        updateMVP(MVP, programID);
-        draw();
+        updateMVP(MVP, MVP2, programID);
+        draw(vao1, vao2);
 
         // Swap Backbuffer to Frontbuffer
         SDL_GL_SwapWindow(win);
@@ -93,7 +94,7 @@ void logSDLError(std::ostream& os, std::string err){
 
 SDL_Window* setupWindow(SDL_Window *win, SDL_GLContext &ctx){
 
-    win = SDL_CreateWindow("Testing Transformations via MVP", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+    win = SDL_CreateWindow("Testing multiple Objects via multiple VAOs", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 
     if(!win){
         logSDLError(std::cerr, "Creating Window");
@@ -118,12 +119,11 @@ SDL_Window* setupWindow(SDL_Window *win, SDL_GLContext &ctx){
 }
 
 
-void initGL(GLuint &vertexbuffer){
+void initGL(GLuint &vertexbuffer, GLuint &vertexbuffer2, GLuint &vao1, GLuint &vao2){
 
-    GLuint VAO_VertexArrayID;
     // Allocate and assign 1 Vertex Array Object to our handle
-    glGenVertexArrays(1, &VAO_VertexArrayID);
-    glBindVertexArray(VAO_VertexArrayID);
+    glGenVertexArrays(1, &vao1);
+    glBindVertexArray(vao1);
 
     // An array of 3 vectors which represents 3 vertices
     static const GLfloat g_vertex_buffer_data[] = {
@@ -151,33 +151,70 @@ void initGL(GLuint &vertexbuffer){
        0                   // array buffer offset
     );
 
+
+
+    glGenVertexArrays(1, &vao2);
+    glBindVertexArray(vao2);
+
+    // An array of 3 vectors which represents 3 vertices
+    static const GLfloat g_vertex_buffer_data2[] = {
+       -1.0f, 1.0f, 0.0f,
+       1.0f, 1.0f, 0.0f,
+       0.0f, -1.0f, 0.0f,
+    };
+
+    // Generate 1 Vertex Buffer Object, put the resulting identifier in vertexbuffer
+    glGenBuffers(1, &vertexbuffer2);
+
+    // Bind our VBO as being the active buffer and storing vertex attributes (coordinates)
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer2);
+
+    // Give our vertices to OpenGL
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data2), g_vertex_buffer_data2, GL_STATIC_DRAW);
+
+    // Specify that our coordinate data is going into attribute index 0, and contains 3 floats per vertex
+    glVertexAttribPointer(
+       0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+       3,                  // size
+       GL_FLOAT,           // type
+       GL_FALSE,           // normalized?
+       0,                  // stride
+       0                   // array buffer offset
+    );
+
     // Set Clear Color
     glClearColor(0.35, 0, 0, 1);
 
 }
 
 
-void draw(){
+void draw(GLuint &vao1, GLuint &vao2){
 
     // Clear Background
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // 1rst attribute buffer : vertices
+    // Object in VAO1
+    glBindVertexArray(vao1);
     glEnableVertexAttribArray(0);
 
-    // Send our transformation to the currently bound shader,
-    // in the "MVP" uniform. For each model you render, since the MVP will be different (at least the M part)
     glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP[0][0]);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 
-    // Draw the triangle !
-    glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+    glDisableVertexAttribArray(0);
 
+    // Object in VAO2
+    glBindVertexArray(vao2);
+    glEnableVertexAttribArray(0);
+
+    glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &MVP2[0][0]);
+
+    glDrawArrays(GL_TRIANGLES, 0, 3);
     glDisableVertexAttribArray(0);
 
 }
 
 
-void updateMVP(glm::mat4 &MVP, GLuint &programID){
+void updateMVP(glm::mat4 &MVP, glm::mat4 &MVP2, GLuint &programID){
 
     // Define Matrices
     // Projection Matrix
@@ -193,7 +230,9 @@ void updateMVP(glm::mat4 &MVP, GLuint &programID){
     glm::mat4 Xrotate = glm::rotate(glm::mat4(1.0f), XrotationVar, glm::vec3(1.0f, 0.0f, 0.0f));
     glm::mat4 Yrotate = glm::rotate(glm::mat4(1.0f), YrotationVar, glm::vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 Model = glm::mat4(1.0f) * Xrotate * Yrotate;
+    glm::mat4 Model2 = glm::translate(glm::mat4(1.0f), glm::vec3(6.0f, 0.0f, 0.0f)) * glm::rotate(glm::mat4(1.0f), 55.0f, glm::vec3(0.0f, 1.0f, 0.0f)) * Xrotate * Yrotate;
     MVP = Projection * View * Model;
+    MVP2 = Projection * View * Model2;
 
     // SET MVP Matrix
     MatrixID = glGetUniformLocation(programID, "MVP");

@@ -4,7 +4,7 @@
 #include <GL/gl.h>
 #include <glm/glm.hpp>
 #include <string>
-#include "loadShaders.h"
+#include "loadShaders.hpp"
 
 
 // PROTOTYPING
@@ -12,7 +12,7 @@ bool init();
 void logSDLError(std::ostream& os, std::string);
 SDL_Window* setupWindow(SDL_Window *win, SDL_GLContext &ctx);
 void initGL(GLuint &vertexbuffer);
-void draw(const GLuint &vertexbuffer);
+void draw();
 void clearAll(SDL_Window *win, SDL_GLContext &ctx);
 
 int main(int, char**){
@@ -37,7 +37,7 @@ int main(int, char**){
 
         SDL_PollEvent(&event);
         glUseProgram(programID);
-        draw(vbo_Vertexbuffer);
+        draw();
         SDL_GL_SwapWindow(win);
 
     } while(event.key.keysym.sym != SDLK_ESCAPE && event.type != SDL_QUIT);
@@ -130,7 +130,7 @@ void initGL(GLuint &vertexbuffer){
 }
 
 
-void draw(const GLuint &vertexbuffer){
+void draw(){
 
     // Specify that our coordinate data is going into attribute index 0, and contains 3 floats per vertex
     glVertexAttribPointer(

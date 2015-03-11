@@ -8,7 +8,7 @@
 #include <vector>
 #include <string>
 
-GLuint loadShaders(const char *vertex_file_path, const char *fragment_file_path);
+extern GLuint loadShaders(const char *vertex_file_path, const char *fragment_file_path);
 
 #endif // LOADSHADERS
 
