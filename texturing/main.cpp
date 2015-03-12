@@ -357,7 +357,7 @@ void updateMVP(glm::mat4 &MVP, glm::mat4 &MVP2, GLuint &programID){
 
     // Define Matrices
     // Projection Matrix
-    glm::mat4 Projection = glm::perspective(45.0f, 4.0f / 3.0f, 2.0f, 100.0f); // FOV, Format, Near Clip, Far Clip
+    glm::mat4 Projection = glm::perspective(45.0f, 4.0f / 3.0f, 0.5f, 50.0f); // FOV, Format, Near Clip, Far Clip
 
     // Camera Matrix
     glm::mat4 View = glm::lookAt(
