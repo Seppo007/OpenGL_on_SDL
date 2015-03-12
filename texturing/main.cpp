@@ -20,12 +20,15 @@ void polling(SDL_Event &event);
 void draw(GLuint &vao1, GLuint &vao2);
 void matrixTest();
 
+// DECLARING AND DEFINING STATIC VARIABLES
 static GLuint MatrixID;
 static glm::mat4 MVP, MVP2;
 static float XrotationVar = 0, YrotationVar = 0;
 static float xvar = 0.0f, yvar = 0.0f, zvar = 10.0f;        // View is centered on Origin with z-distance of 10
 
-static BMPFILE texture("D:/test.bmp");
+// used texture
+static BMPFILE texture("../../OpenGL_on_SDL/texturing/test.bmp");
+
 
 int main(int, char**){
 
@@ -139,6 +142,7 @@ void initGL(GLuint &vao1, GLuint &vao2){
        -1.f, 1.f, 0.f,
     };
 
+    // (3 * 2) --> UV Data for 2 Triangles = 1 Rect || --> *6 for a full Cube
     const GLfloat sprite_uv_buffer_data[] = {
         0.0f, 0.0f,
         1.0f, 0.0f,
@@ -198,14 +202,14 @@ void initGL(GLuint &vao1, GLuint &vao2){
        0                   // array buffer offset
     );
 
-    GLuint texturebuffer;
-    glGenBuffers(1, &texturebuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, texturebuffer);
+    // Generating the UVBuffer for texture mapping
+    GLuint uvBuffer;
+    glGenBuffers(1, &uvBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(sprite_uv_buffer_data), sprite_uv_buffer_data, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(1);
 
     // Specify that our coordinate data is going into attribute index 0, and contains 3 floats per vertex
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, texturebuffer);
     glVertexAttribPointer(
        1,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
        2,                  // size
@@ -214,7 +218,6 @@ void initGL(GLuint &vao1, GLuint &vao2){
        0,                  // stride
        0                   // array buffer offset
     );
-
 
 
     glGenVertexArrays(1, &vao2);
@@ -285,12 +288,10 @@ void initGL(GLuint &vao1, GLuint &vao2){
        0                   // array buffer offset
     );
 
-    glBindBuffer(GL_ARRAY_BUFFER, texturebuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(sprite_uv_buffer_data), sprite_uv_buffer_data, GL_STATIC_DRAW);
 
-    // Specify that our coordinate data is going into attribute index 0, and contains 3 floats per vertex
     glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, texturebuffer);
     glVertexAttribPointer(
        1,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
        2,                  // size
@@ -299,6 +300,7 @@ void initGL(GLuint &vao1, GLuint &vao2){
        0,                  // stride
        0                   // array buffer offset
     );
+
 
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
