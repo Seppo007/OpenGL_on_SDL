@@ -6,7 +6,8 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/ext.hpp>
 #include <string>
-#include "loadShaders.hpp"
+
+#include "../../OpenGL_on_SDL/shaderLoading/loadShaders.hpp"
 #include "bmpLoader.hpp"
 
 // PROTOTYPING
@@ -322,8 +323,6 @@ void initGL(GLuint &vao1, GLuint &vao2){
 
     // Set Clear Color
     glClearColor(0.35, 0, 0, 1);
-
-
 
 }
 

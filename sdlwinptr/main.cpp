@@ -4,7 +4,6 @@
 #include <GL/gl.h>
 #include <glm/glm.hpp>
 #include <string>
-#include "../../OpenGL_on_SDL/shaderLoading/loadShaders.hpp"
 
 
 // PROTOTYPING
@@ -15,29 +14,30 @@ void initGL(GLuint &vertexbuffer);
 void draw();
 void clearAll(SDL_Window *win, SDL_GLContext &ctx);
 
+
 int main(int, char**){
 
     SDL_Window *win = nullptr;
     SDL_GLContext ctx;
 
     SDL_Event event;
-    GLuint vbo_Vertexbuffer;
 
     init();
 
+    // win = weg lassen funktioniert nicht, why?
     win = setupWindow(win, ctx);
 
-    initGL(vbo_Vertexbuffer);
-
-    // Defining a Shader Program to be applied later
-    GLuint programID = loadShaders("..\\..\\OpenGL_on_SDL\\firstSteps\\shader.vert", "..\\..\\OpenGL_on_SDL\\firstSteps\\shader.frag");
 
     // MAIN LOOP
+
+    glClearColor(0.8f, 0.1f, 0.1f, 1.0f);
+
     do {
 
         SDL_PollEvent(&event);
-        glUseProgram(programID);
-        draw();
+
+        glClear(GL_COLOR_BUFFER_BIT);
+
         SDL_GL_SwapWindow(win);
 
     } while(event.key.keysym.sym != SDLK_ESCAPE && event.type != SDL_QUIT);
@@ -98,60 +98,6 @@ SDL_Window* setupWindow(SDL_Window *win, SDL_GLContext &ctx){
     }
 
     return win;
-
-}
-
-
-void initGL(GLuint &vertexbuffer){
-
-    GLuint VAO_VertexArrayID;
-    // Allocate and assign 1 Vertex Array Object to our handle
-    glGenVertexArrays(1, &VAO_VertexArrayID);
-    glBindVertexArray(VAO_VertexArrayID);
-
-    // An array of 3 vectors which represents 3 vertices
-    static const GLfloat g_vertex_buffer_data[] = {
-       -0.5f, -0.5f, 0.0f,
-       0.0f, 0.5f, 0.0f,
-       0.5f, -0.5f, 0.0f,
-    };
-
-    // Generate 1 Vertex Buffer Object, put the resulting identifier in vertexbuffer
-    glGenBuffers(1, &vertexbuffer);
-
-    // Bind our VBO as being the active buffer and storing vertex attributes (coordinates)
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-
-    // Give our vertices to OpenGL
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
-
-    glClearColor(0.35, 0, 0, 1);
-
-}
-
-
-void draw(){
-
-    // Specify that our coordinate data is going into attribute index 0, and contains 3 floats per vertex
-    glVertexAttribPointer(
-       0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-       3,                  // size
-       GL_FLOAT,           // type
-       GL_FALSE,           // normalized?
-       0,                  // stride
-       0                   // array buffer offset
-    );
-
-    // Clear Background
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // 1rst attribute buffer : vertices
-    glEnableVertexAttribArray(0);
-
-    // Draw the triangle !
-    glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
-
-    glDisableVertexAttribArray(0);
 
 }
 

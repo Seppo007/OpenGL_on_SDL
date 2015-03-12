@@ -6,7 +6,7 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/ext.hpp>
 #include <string>
-#include "loadShaders.hpp"
+#include "../../OpenGL_on_SDL/shaderLoading/loadShaders.hpp"
 
 // PROTOTYPING
 bool init();
