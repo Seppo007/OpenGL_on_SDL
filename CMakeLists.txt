@@ -17,6 +17,7 @@ include_directories($(OPENGL_INCLUDE_DIR))
 aux_source_directory(. SRC_LIST)
 
 add_subdirectory(shaderLoading)
+add_subdirectory(firstsdlwin)
 add_subdirectory(firstSteps)
 add_subdirectory(transformations)
 add_subdirectory(multipleObjects)
